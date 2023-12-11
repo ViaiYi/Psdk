@@ -1,0 +1,15 @@
+.\objects\iconv.o: ..\..\drivers\iconv\iconv.c
+.\objects\iconv.o: ..\..\drivers\BSP\config.h
+.\objects\iconv.o: D:\soft\k5\ARM\ARMCC\Bin\..\include\limits.h
+.\objects\iconv.o: D:\soft\k5\ARM\ARMCC\Bin\..\include\stddef.h
+.\objects\iconv.o: D:\soft\k5\ARM\ARMCC\Bin\..\include\stdio.h
+.\objects\iconv.o: D:\soft\k5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\objects\iconv.o: D:\soft\k5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\iconv.o: ..\..\drivers\iconv\include\iconv.h
+.\objects\iconv.o: D:\soft\k5\ARM\ARMCC\Bin\..\include\errno.h
+.\objects\iconv.o: D:\soft\k5\ARM\ARMCC\Bin\..\include\locale.h
+.\objects\iconv.o: ..\..\drivers\iconv\lib\fcntl.h
+.\objects\iconv.o: ..\..\drivers\iconv\lib\types.h
+.\objects\iconv.o: ..\..\drivers\iconv\lib\stat.h
+.\objects\iconv.o: ..\..\drivers\iconv\lib\types.h
+.\objects\iconv.o: D:\soft\k5\ARM\ARMCC\Bin\..\include\time.h
