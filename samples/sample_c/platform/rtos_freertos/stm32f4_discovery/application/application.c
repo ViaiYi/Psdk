@@ -111,12 +111,14 @@ void DjiUser_StartTask(void const *argument)
         .UartReadData = HalUart_ReadData,
         .UartGetStatus = HalUart_GetStatus,
     };
+		
     T_DjiFirmwareVersion firmwareVersion = {
-        .majorVersion = USER_FIRMWARE_MAJOR_VERSION,
-        .minorVersion = USER_FIRMWARE_MINOR_VERSION,
-        .modifyVersion = USER_FIRMWARE_MODIFY_VERSION,
-        .debugVersion = USER_FIRMWARE_DEBUG_VERSION,
+        .majorVersion = 1,
+        .minorVersion = 0,
+        .modifyVersion = 0,
+        .debugVersion = 0,
     };
+		
 
     UART_Init(DJI_CONSOLE_UART_NUM, DJI_CONSOLE_UART_BAUD);
     Led_Init(LED3);
@@ -318,10 +320,10 @@ void DjiUser_StartTask(void const *argument)
     };
     T_DjiTestUpgradeConfig testUpgradeConfig = {
         .firmwareVersion = {
-            USER_FIRMWARE_MAJOR_VERSION,
-            USER_FIRMWARE_MINOR_VERSION,
-            USER_FIRMWARE_MODIFY_VERSION,
-            USER_FIRMWARE_DEBUG_VERSION
+            1,
+            0,
+            0,
+            0
         },
         .transferType = DJI_FIRMWARE_TRANSFER_TYPE_DCFTP,
         .needReplaceProgramBeforeReboot = false
