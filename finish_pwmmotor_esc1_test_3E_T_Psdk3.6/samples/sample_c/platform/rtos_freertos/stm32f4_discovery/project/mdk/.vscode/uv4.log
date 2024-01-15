@@ -1,8 +1,0 @@
-*** Using Compiler 'V5.06 update 6 (build 750)', folder: 'D:\soft\k5\ARM\ARMCC\Bin'
-Build target 'mdk_app'
-compiling application.c...
-linking...
-Program Size: Code=213900 RO-data=215336 RW-data=17520 ZI-data=92688  
-After Build - User command #1: D:\soft\k5\ARM\ARMCC\bin\fromelf.exe .\Objects\mdk_app.axf --bin --output .\dji_sdk_demo_rtos.bin
-".\Objects\mdk_app.axf" - 0 Error(s), 0 Warning(s).
-Build Time Elapsed:  00:00:04
