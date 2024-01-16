@@ -1277,3 +1277,4 @@ samples/sample_c/platform/rtos_freertos/stm32f4_discovery/project/mdk/Objects/ut
 samples/sample_c/platform/rtos_freertos/stm32f4_discovery/project/mdk/build/mdk_app.map
 samples/sample_c/platform/rtos_freertos/stm32f4_discovery/project/mdk/build/startup_stm32f407xx.lst
 .vscode/settings.json
+samples/sample_c/platform/rtos_freertos/stm32f4_discovery/project/mdk/.vscode/keil-assistant.log
