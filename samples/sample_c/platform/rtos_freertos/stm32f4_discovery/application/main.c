@@ -35,12 +35,15 @@
 #define USER_START_TASK_PRIORITY            0
 #define USER_RUN_INDICATE_TASK_STACK_SIZE   256
 #define USER_RUN_INDICATE_TASK_PRIORITY     0
+#define USER_MYPWM_TASK_STACK_SIZE          512
+#define USER_MYPWM_TASK_PRIORITY            0
 
 /* Private types -------------------------------------------------------------*/
 
 /* Private values -------------------------------------------------------------*/
 static TaskHandle_t startTask;
 static TaskHandle_t runIndicateTask;
+static TaskHandle_t myPwmTask;
 
 /* Private functions declaration ---------------------------------------------*/
 static void SystemClock_Config(void);
@@ -77,6 +80,10 @@ int main(void)
     /* Create runIndicate task */
     xTaskCreate((TaskFunction_t) DjiUser_MonitorTask, "monitor_task", USER_RUN_INDICATE_TASK_STACK_SIZE,
                 NULL, USER_RUN_INDICATE_TASK_PRIORITY, (TaskHandle_t *) runIndicateTask);
+
+    /* Create mypwm task */
+    xTaskCreate((TaskFunction_t) DjiUser_MyPwmTask, "mypwm_task", USER_MYPWM_TASK_STACK_SIZE,
+                NULL, USER_MYPWM_TASK_PRIORITY, (TaskHandle_t *) myPwmTask);
 
     /* Start scheduler */
     vTaskStartScheduler();

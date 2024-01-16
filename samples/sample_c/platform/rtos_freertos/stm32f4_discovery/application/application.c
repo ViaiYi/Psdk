@@ -444,6 +444,26 @@ void DjiUser_MonitorTask(void const *argument)
 #pragma GCC diagnostic pop
 #endif
 
+void DjiUser_MyPwmTask(void const *argument){
+
+    //参数1:arr 参数2:psc
+    //初始化pwm1
+    gtim_timx_motor1_chy_init(200 , 8400);
+    //初始化pwm2
+    gtim_timx_motor2_chy_init(200 , 8400);
+    //初始化pwm3
+    gtim_timx_motor3_chy_init(200 , 8400);
+
+    uint8_t a = 0;
+    while(1){
+        //DjiUser_GetValue()
+    }
+
+}
+#ifndef __CC_ARM
+#pragma GCC diagnostic pop
+#endif
+
 /* Private functions definition-----------------------------------------------*/
 static T_DjiReturnCode DjiUser_FillInUserInfo(T_DjiUserInfo *userInfo)
 {

@@ -29,6 +29,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include <dji_typedef.h>
+#include <dji_widget.h>
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,6 +44,7 @@ extern "C" {
 T_DjiReturnCode DjiTest_WidgetStartService(void);
 T_DjiReturnCode DjiTest_WidgetSetConfigFilePath(const char *path);
 __attribute__((weak)) void DjiTest_WidgetLogAppend(const char *fmt, ...);
+int32_t DjiUser_GetValue(E_DjiWidgetType widgetType, uint32_t index);
 
 #ifdef __cplusplus
 }

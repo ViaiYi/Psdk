@@ -24,7 +24,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "test_widget.h"
-#include <dji_widget.h>
+
 #include <dji_logger.h>
 #include "../utils/util_misc.h"
 #include <dji_platform.h>
@@ -75,6 +75,8 @@ static const uint32_t s_widgetHandlerListCount = sizeof(s_widgetHandlerList) / s
 static int32_t s_widgetValueList[sizeof(s_widgetHandlerList) / sizeof(T_DjiWidgetHandlerListItem)] = {0};
 
 /* Exported functions definition ---------------------------------------------*/
+
+
 T_DjiReturnCode DjiTest_WidgetStartService(void)
 {
     T_DjiReturnCode djiStat;
@@ -246,6 +248,22 @@ static T_DjiReturnCode DjiTestWidget_GetWidgetValue(E_DjiWidgetType widgetType, 
     *value = s_widgetValueList[index];
 
     return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
+}
+
+//brief my get value function
+/*GET VALUE ------------------------------------------------------------------*/
+int32_t DjiUser_GetValue(E_DjiWidgetType widgetType, uint32_t index){
+    int value = 0;
+    if(index < s_widgetHandlerListCount){
+        T_DjiReturnCode result = DjiTestWidget_GetWidgetValue(widgetType , index , &value ,NULL);
+        if(result != DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS){
+            USER_LOG_ERROR("Dji widget_value get error");
+        }
+    }
+    else{
+        USER_LOG_ERROR("Dji widge_value_index overflow");
+    }
+    return value;
 }
 
 /****************** (C) COPYRIGHT DJI Innovations *****END OF FILE****/
