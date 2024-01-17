@@ -36,12 +36,14 @@
 
 /* Private define ------------------------------------------------------------*/
 //uart uart buffer size define
-#define UART1_READ_BUF_SIZE      64
-#define UART1_WRITE_BUF_SIZE     64
+#define UART1_READ_BUF_SIZE      128
+#define UART1_WRITE_BUF_SIZE     128
 #define UART2_READ_BUF_SIZE      64
 #define UART2_WRITE_BUF_SIZE     2048
 #define UART3_READ_BUF_SIZE      8192
 #define UART3_WRITE_BUF_SIZE     2048
+#define UART4_READ_BUF_SIZE      128
+#define UART4_WRITE_BUF_SIZE     128
 
 /* Private macro -------------------------------------------------------------*/
 
@@ -88,6 +90,18 @@ CCMRAM static uint8_t s_uart3WriteBuf[UART3_WRITE_BUF_SIZE];
 
 static T_DjiMutexHandle s_uart3Mutex;
 static UART_HandleTypeDef s_uart3Handle;
+#endif
+
+#ifdef USING_UART_PORT_4
+static T_RingBuffer s_uart4ReadRingBuffer;
+static T_UartBufferState s_uart4ReadBufferState;
+static T_RingBuffer s_uart4WriteRingBuffer;
+static T_UartBufferState s_uart4WriteBufferState;
+CCMRAM static uint8_t s_uart4ReadBuf[UART4_READ_BUF_SIZE];
+CCMRAM static uint8_t s_uart4WriteBuf[UART4_WRITE_BUF_SIZE];
+
+static T_DjiMutexHandle s_uart4Mutex;
+static UART_HandleTypeDef s_uart4Handle;
 #endif
 
 /* Exported variables --------------------------------------------------------*/
@@ -168,6 +182,27 @@ void UART_Init(E_UartNum uartNum, uint32_t baudRate)
             break;
 #endif
 
+#ifdef USING_UART_PORT_4
+        case UART_NUM_4: {
+            RingBuf_Init(&s_uart4ReadRingBuffer, s_uart4ReadBuf, UART4_READ_BUF_SIZE);
+            RingBuf_Init(&s_uart4WriteRingBuffer, s_uart4WriteBuf, UART4_WRITE_BUF_SIZE);
+
+            s_uart4Handle.Instance = UART4;
+            s_uart4Handle.Init.BaudRate = baudRate;
+            s_uart4Handle.Init.WordLength = UART_WORDLENGTH_8B;
+            s_uart4Handle.Init.StopBits = UART_STOPBITS_1;
+            s_uart4Handle.Init.Parity = UART_PARITY_NONE;
+            s_uart4Handle.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+            s_uart4Handle.Init.Mode = UART_MODE_TX_RX;
+            s_uart4Handle.Init.OverSampling = UART_OVERSAMPLING_16;
+            HAL_UART_Init(&s_uart4Handle);
+            __HAL_UART_ENABLE_IT(&s_uart4Handle, UART_IT_RXNE);
+
+            Osal_MutexCreate(&s_uart4Mutex);
+        }
+            break;
+#endif
+
         default:
             break;
     }
@@ -209,6 +244,15 @@ int UART_Read(E_UartNum uartNum, uint8_t *buf, uint16_t readSize)
             Osal_MutexLock(s_uart3Mutex);
             readRealSize = RingBuf_Get(&s_uart3ReadRingBuffer, buf, readSize);
             Osal_MutexUnlock(s_uart3Mutex);
+        }
+            break;
+#endif
+				
+#ifdef USING_UART_PORT_4
+        case UART_NUM_4: {
+            Osal_MutexLock(s_uart4Mutex);
+            readRealSize = RingBuf_Get(&s_uart4ReadRingBuffer, buf, readSize);
+            Osal_MutexUnlock(s_uart4Mutex);
         }
             break;
 #endif
@@ -279,6 +323,21 @@ int UART_Write(E_UartNum uartNum, const uint8_t *buf, uint16_t writeSize)
             break;
 #endif
 
+#ifdef USING_UART_PORT_4
+        case UART_NUM_4: {
+            Osal_MutexLock(s_uart4Mutex);
+            writeRealLen = RingBuf_Put(&s_uart4WriteRingBuffer, buf, writeSize);
+            __HAL_UART_ENABLE_IT(&s_uart4Handle, UART_IT_TXE);
+            usedCapacityOfBuffer = UART4_WRITE_BUF_SIZE - RingBuf_GetUnusedSize(&s_uart4WriteRingBuffer);
+            s_uart3WriteBufferState.maxUsedCapacityOfBuffer =
+                usedCapacityOfBuffer > s_uart4WriteBufferState.maxUsedCapacityOfBuffer ? usedCapacityOfBuffer
+                                                                                       : s_uart4WriteBufferState.maxUsedCapacityOfBuffer;
+            s_uart4WriteBufferState.countOfLostData += writeSize - writeRealLen;
+            Osal_MutexUnlock(s_uart4Mutex);
+        }
+            break;
+#endif
+
         default:
             return UART_ERROR;
     }
@@ -305,6 +364,12 @@ void UART_GetBufferState(E_UartNum uartNum, T_UartBufferState *readBufferState, 
         case UART_NUM_3:
             memcpy(readBufferState, &s_uart3ReadBufferState, sizeof(T_UartBufferState));
             memcpy(writeBufferState, &s_uart3WriteBufferState, sizeof(T_UartBufferState));
+            break;
+#endif
+#ifdef USING_UART_PORT_4
+        case UART_NUM_4:
+            memcpy(readBufferState, &s_uart4ReadBufferState, sizeof(T_UartBufferState));
+            memcpy(writeBufferState, &s_uart4WriteBufferState, sizeof(T_UartBufferState));
             break;
 #endif
         default:
@@ -417,6 +482,37 @@ void USART3_IRQHandler(void)
 
 #endif
 
+#ifdef USING_UART_PORT_4
+void UART4_IRQHandler(void)
+{
+    uint8_t data;
+    uint16_t usedCapacityOfBuffer = 0;
+    uint16_t realCountPutBuffer = 0;
+
+    if (__HAL_UART_GET_IT_SOURCE(&s_uart4Handle, UART_IT_RXNE) != RESET &&
+        __HAL_UART_GET_FLAG(&s_uart4Handle, UART_FLAG_RXNE) != RESET) {
+        data = (uint8_t) ((uint16_t) (s_uart4Handle.Instance->DR & (uint16_t) 0x01FF) & (uint16_t) 0x00FF);
+        realCountPutBuffer = RingBuf_Put(&s_uart4ReadRingBuffer, &data, 1);
+        usedCapacityOfBuffer = UART4_READ_BUF_SIZE - RingBuf_GetUnusedSize(&s_uart4ReadRingBuffer);
+        s_uart4ReadBufferState.maxUsedCapacityOfBuffer =
+            usedCapacityOfBuffer > s_uart4ReadBufferState.maxUsedCapacityOfBuffer ? usedCapacityOfBuffer
+                                                                                  : s_uart4ReadBufferState.maxUsedCapacityOfBuffer;
+        s_uart4ReadBufferState.countOfLostData += 1 - realCountPutBuffer;
+    }
+
+    if (__HAL_UART_GET_IT_SOURCE(&s_uart4Handle, UART_IT_TXE) != RESET &&
+        __HAL_UART_GET_FLAG(&s_uart4Handle, UART_FLAG_TXE) != RESET) {
+        if (RingBuf_Get(&s_uart4WriteRingBuffer, &data, 1)) {
+            /* Transmit Data */
+            s_uart4Handle.Instance->DR = ((uint16_t) data & (uint16_t) 0x01FF);
+        } else {
+            __HAL_UART_DISABLE_IT(&s_uart4Handle, UART_IT_TXE);
+        }
+    }
+}
+
+#endif
+
 #ifdef __CC_ARM
 int fputc(int ch,FILE *f)
 {
@@ -445,6 +541,8 @@ PUTCHAR_PROTOTYPE
         HAL_UART_Transmit(&s_uart2Handle, (uint8_t *) &ch, 1, 0xFFFF);
     } else if (DJI_CONSOLE_UART_NUM == UART_NUM_3) {
         HAL_UART_Transmit(&s_uart3Handle, (uint8_t *) &ch, 1, 0xFFFF);
+    } else if (DJI_CONSOLE_UART_NUM == UART_NUM_4) {
+        HAL_UART_Transmit(&s_uart4Handle, (uint8_t *) &ch, 1, 0xFFFF);
     }
 
     return ch;

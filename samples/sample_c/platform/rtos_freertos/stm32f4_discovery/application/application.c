@@ -59,6 +59,8 @@
 #include "upgrade/test_upgrade.h"
 #include "power_management/test_power_management.h"
 
+#include "speaker.h"
+
 /* Private constants ---------------------------------------------------------*/
 #define RUN_INDICATE_TASK_FREQ_1HZ        1
 #define RUN_INDICATE_TASK_FREQ_0D1HZ      0.1f
@@ -73,6 +75,8 @@ static bool s_isApplicationStart = false;
 /* Private functions declaration ---------------------------------------------*/
 static T_DjiReturnCode DjiUser_PrintConsole(const uint8_t *data, uint16_t dataLen);
 static T_DjiReturnCode DjiUser_FillInUserInfo(T_DjiUserInfo *userInfo);
+
+//uint8_t psdk_start[] = {'p','s','d','k','初','始','化','成','功'};
 
 /* Exported functions definition ---------------------------------------------*/
 void DjiUser_StartTask(void const *argument)
@@ -121,6 +125,9 @@ void DjiUser_StartTask(void const *argument)
 		
 
     UART_Init(DJI_CONSOLE_UART_NUM, DJI_CONSOLE_UART_BAUD);
+	//UART_Init(TTS_CONSOLE_UART_NUM, TTS_CONSOLE_UART_BAUD);
+    DEBUG_USART_Config();
+
     Led_Init(LED3);
 
 //Attention: if you want to run payload sdk on extension port, please define the macro USE_USB_HOST_UART.
@@ -341,6 +348,7 @@ void DjiUser_StartTask(void const *argument)
 
     s_isApplicationStart = true;
 
+    //SYN_FrameInfo(psdk_start);
     while (1) {
         Osal_TaskSleepMs(500);
         Led_Trigger(LED3);
@@ -402,6 +410,14 @@ void DjiUser_MonitorTask(void const *argument)
                        writeBufferState.countOfLostData, writeBufferState.maxUsedCapacityOfBuffer);
 #endif
 
+#ifdef USING_UART_PORT_4
+        UART_GetBufferState(UART_NUM_4, &readBufferState, &writeBufferState);
+        USER_LOG_DEBUG("Uart4 read buffer state: countOfLostData %d, maxUsedCapacityOfBuffer %d.",
+                       readBufferState.countOfLostData, readBufferState.maxUsedCapacityOfBuffer);
+        USER_LOG_DEBUG("Uart4 write buffer state: countOfLostData %d, maxUsedCapacityOfBuffer %d.",
+                       writeBufferState.countOfLostData, writeBufferState.maxUsedCapacityOfBuffer);
+#endif
+
         // report system performance information.
         // Attention: report system performance part is not intended for normal application runtime use but as a debug aid.
         if (USER_UTIL_IS_WORK_TURN(runIndicateTaskStep++, RUN_INDICATE_TASK_FREQ_0D1HZ,
@@ -460,6 +476,29 @@ void DjiUser_MyPwmTask(void const *argument){
     }
 
 }
+
+void DjiUser_MySpeakerTask(void const *argument){
+	uint8_t a[] = {0x70,0x73,0x64,0x6b,0xe5,0x88,0x9d,0xe5,0xa7,0x8b,0xe5,0x8c,0x96,0xe6,0x88,0x90,0xe5,0x8a,0x9f};
+    vTaskDelay(5000);
+    SYN_FrameInfo(a);
+    vTaskDelay(5000);
+	while(1){
+        //uint8_t a[5] = {'h','e','l','l','o'};
+        if(TTS[0] != '\0'){
+            SYN_FrameInfo(TTS);
+            //*TTS = NULL;
+            TTS[0] = '\0';
+            vTaskDelay(1000);
+        }
+        else{
+            TTS[0] = '\0';
+        }
+        
+        
+        
+	}
+}
+
 #ifndef __CC_ARM
 #pragma GCC diagnostic pop
 #endif

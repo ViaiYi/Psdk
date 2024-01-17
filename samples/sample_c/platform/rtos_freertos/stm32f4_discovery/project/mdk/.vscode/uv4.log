@@ -1,5 +1,17 @@
 *** Using Compiler 'V5.06 update 6 (build 750)', folder: 'D:\soft\keil5\ARM\ARMCC\Bin'
 Build target 'mdk_app'
+compiling application.c...
+..\..\application\application.c(467): warning:  #223-D: function "gtim_timx_motor1_chy_init" declared implicitly
+      gtim_timx_motor1_chy_init(200 , 8400);
+..\..\application\application.c(469): warning:  #223-D: function "gtim_timx_motor2_chy_init" declared implicitly
+      gtim_timx_motor2_chy_init(200 , 8400);
+..\..\application\application.c(471): warning:  #223-D: function "gtim_timx_motor3_chy_init" declared implicitly
+      gtim_timx_motor3_chy_init(200 , 8400);
+..\..\application\application.c(483): warning:  #223-D: function "SYN_FrameInfo" declared implicitly
+      SYN_FrameInfo(a);
+..\..\application\application.c: 4 warnings, 0 errors
+linking...
+Program Size: Code=232636 RO-data=130708 RW-data=17676 ZI-data=108740  
 After Build - User command #1: D:\soft\keil5\ARM\ARMCC\bin\fromelf.exe .\Objects\mdk_app.axf --bin --output .\dji_sdk_demo_rtos.bin
-".\Objects\mdk_app.axf" - 0 Error(s), 0 Warning(s).
-Build Time Elapsed:  00:00:00
+".\Objects\mdk_app.axf" - 0 Error(s), 4 Warning(s).
+Build Time Elapsed:  00:00:03

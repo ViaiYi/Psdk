@@ -75,6 +75,23 @@
 
 #define USART3_IRQ_PRIO_PRE      5
 #define USART3_IRQ_PRIO_SUB      0
+
+//UART4
+#define UART4_RX_GPIO_CLK_ENABLE()      __HAL_RCC_GPIOA_CLK_ENABLE()
+#define UART4_TX_GPIO_CLK_ENABLE()      __HAL_RCC_GPIOA_CLK_ENABLE()
+
+#define UART4_FORCE_RESET()             __HAL_RCC_UART4_FORCE_RESET()
+#define UART4_RELEASE_RESET()           __HAL_RCC_UART4_RELEASE_RESET()
+/* Definition for UART4 Pins */
+#define UART4_TX_PIN                    GPIO_PIN_0
+#define UART4_TX_GPIO_PORT              GPIOA
+#define UART4_TX_AF                     GPIO_AF8_UART4
+#define UART4_RX_PIN                    GPIO_PIN_1
+#define UART4_RX_GPIO_PORT              GPIOA
+#define UART4_RX_AF                     GPIO_AF8_UART4
+
+#define UART4_IRQ_PRIO_PRE      5
+#define UART4_IRQ_PRIO_SUB      0
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -226,6 +243,36 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
         HAL_NVIC_SetPriority(USART3_IRQn, USART3_IRQ_PRIO_PRE, USART3_IRQ_PRIO_SUB);
         HAL_NVIC_EnableIRQ(USART3_IRQn);
     }
+		
+		else if (huart->Instance == UART4) {
+        /*##-1- Enable peripherals and GPIO Clocks #################################*/
+        /* Enable GPIO TX/RX clock */
+        UART4_TX_GPIO_CLK_ENABLE();
+        UART4_RX_GPIO_CLK_ENABLE();
+        /* Enable UART clock */
+        __HAL_RCC_UART4_CLK_ENABLE();
+
+        /*##-2- Configure peripheral GPIO ##########################################*/
+        /* UART TX GPIO pin configuration  */
+        GPIO_InitStruct.Pin = UART4_TX_PIN;
+        GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+        GPIO_InitStruct.Pull = GPIO_NOPULL;
+        GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
+        GPIO_InitStruct.Alternate = UART4_TX_AF;
+
+        HAL_GPIO_Init(UART4_TX_GPIO_PORT, &GPIO_InitStruct);
+
+        /* UART RX GPIO pin configuration  */
+        GPIO_InitStruct.Pin = UART4_RX_PIN;
+        GPIO_InitStruct.Alternate = UART4_RX_AF;
+
+        HAL_GPIO_Init(UART4_RX_GPIO_PORT, &GPIO_InitStruct);
+
+        /*##-3- Configure the NVIC for UART ########################################*/
+        /* NVIC for UART4 */
+        HAL_NVIC_SetPriority(UART4_IRQn, UART4_IRQ_PRIO_PRE, UART4_IRQ_PRIO_SUB);
+        HAL_NVIC_EnableIRQ(UART4_IRQn);
+    }
 
 }
 
@@ -255,6 +302,25 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
 
   /* USER CODE END USART2_MspDeInit 1 */
   }
+	
+	//if(huart->Instance==UART4)
+  //{
+  /* USER CODE BEGIN USART2_MspDeInit 0 */
+
+  /* USER CODE END USART2_MspDeInit 0 */
+    /* Peripheral clock disable */
+    //__HAL_RCC_UART4_CLK_DISABLE();
+
+    /**UART4 GPIO Configuration
+    PA0     ------> UART4_TX
+    PA1     ------> UART4_RX
+    */
+    //HAL_GPIO_DeInit(GPIOA, GPIO_PIN_0|GPIO_PIN_1);
+
+  /* USER CODE BEGIN USART2_MspDeInit 1 */
+
+  /* USER CODE END USART2_MspDeInit 1 */
+  //}
 
 }
 

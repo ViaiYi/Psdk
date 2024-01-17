@@ -42,6 +42,7 @@ extern "C" {
 void DjiUser_StartTask(void const *argument);
 void DjiUser_MonitorTask(void const *argument);
 void DjiUser_MyPwmTask(void const *argument);
+void DjiUser_MySpeakerTask(void const *argument);
 
 #ifdef __cplusplus
 }

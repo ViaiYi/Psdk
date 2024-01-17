@@ -50,6 +50,8 @@ static T_DjiReturnCode ReceiveDataFromPayload(const uint8_t *data, uint16_t len)
 static T_DjiTaskHandle s_userDataTransmissionThread;
 static T_DjiAircraftInfoBaseInfo s_aircraftInfoBaseInfo;
 
+uint8_t TTS[128];
+
 /* Exported functions definition ---------------------------------------------*/
 T_DjiReturnCode DjiTest_DataTransmissionStartService(void)
 {
@@ -283,8 +285,14 @@ static T_DjiReturnCode ReceiveDataFromMobile(const uint8_t *data, uint16_t len)
 
     osalHandler->Free(printData);
 
+    memset(TTS,0,sizeof(TTS));
+
+	memcpy(TTS,data,len);
+
     return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
+
+//brief my get value function
 
 static T_DjiReturnCode ReceiveDataFromCloud(const uint8_t *data, uint16_t len)
 {

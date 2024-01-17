@@ -38,7 +38,7 @@ extern "C" {
 
 
 /* Exported types ------------------------------------------------------------*/
-
+extern uint8_t TTS[];
 /* Exported functions --------------------------------------------------------*/
 T_DjiReturnCode DjiTest_DataTransmissionStartService(void);
 T_DjiReturnCode DjiTest_DataTransmissionStopService(void);

@@ -37,6 +37,8 @@
 #define USER_RUN_INDICATE_TASK_PRIORITY     0
 #define USER_MYPWM_TASK_STACK_SIZE          512
 #define USER_MYPWM_TASK_PRIORITY            0
+#define USER_MYSPEAKER_TASK_STACK_SIZE      512
+#define USER_MYSPEAKER_TASK_PRIORITY        0
 
 /* Private types -------------------------------------------------------------*/
 
@@ -44,6 +46,7 @@
 static TaskHandle_t startTask;
 static TaskHandle_t runIndicateTask;
 static TaskHandle_t myPwmTask;
+static TaskHandle_t mySpeakerTask;
 
 /* Private functions declaration ---------------------------------------------*/
 static void SystemClock_Config(void);
@@ -85,6 +88,10 @@ int main(void)
     xTaskCreate((TaskFunction_t) DjiUser_MyPwmTask, "mypwm_task", USER_MYPWM_TASK_STACK_SIZE,
                 NULL, USER_MYPWM_TASK_PRIORITY, (TaskHandle_t *) myPwmTask);
 
+    /* Create mypwm task */
+    xTaskCreate((TaskFunction_t) DjiUser_MySpeakerTask, "myspeaker_task", USER_MYSPEAKER_TASK_STACK_SIZE,
+                NULL, USER_MYSPEAKER_TASK_PRIORITY, (TaskHandle_t *) mySpeakerTask);
+								
     /* Start scheduler */
     vTaskStartScheduler();
 
